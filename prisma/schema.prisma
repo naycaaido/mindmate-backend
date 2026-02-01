@@ -5,20 +5,23 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  photo_profile String?
+  username      String
+  email         String   @unique
+  password      String
+  createdAt     DateTime @default(now())
 
   // Relations
-  streaks  UserStreak[]
-  moodLogs MoodLog[]
+  streaks       UserStreak[]
+  moodLogs      MoodLog[]
+  refreshTokens RefreshToken[]
 }
 
 model UserStreak {
@@ -35,10 +38,21 @@ model UserStreak {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
+model RefreshToken {
+  id         String   @id @default(uuid())
+  userId     String
+  token      String   @unique
+  revoked    Boolean  @default(false)
+  expired_at DateTime
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 model MoodType {
   id         String @id @default(uuid())
   moodName   String
-  valueScore Int // Skala 1-5
+  valueScore Int
   iconUrl    String
 
   // Relations
