@@ -84,7 +84,7 @@ const loginUser = async ({ email, password }) => {
   };
 };
 
-const refreshAccessToken = async ({ refreshToken }) => {
+const refreshAccessToken = async (refreshToken) => {
   if (!refreshToken) {
     throw new BadRequestError("Refresh token required!", "TOKEN_MISSING");
   }
@@ -92,9 +92,7 @@ const refreshAccessToken = async ({ refreshToken }) => {
   const tokenData = await prisma.refreshToken.findUnique({
     where: { token: refreshToken },
     include: {
-      user: {
-        include: { roles: true, buyerProfile: true, sellerProfile: true },
-      },
+      user: true,
     },
   });
 
@@ -112,13 +110,15 @@ const refreshAccessToken = async ({ refreshToken }) => {
     throw new ForbiddenError("Invalid refresh token", "TOKEN_INVALID");
   }
 
-  const activeRole = decoded.user.active_role; // <-- Ambil dari token lama
+  const payload = {
+    id: tokenData.user.id,
+    email: tokenData.user.email,
+    username: tokenData.user.username,
+  };
 
-  const accessToken = jwt.sign(
-    buildUserPayload(tokenData.user, activeRole),
-    process.env.ACCESS_KEY,
-    { expiresIn: "10m" },
-  );
+  const accessToken = jwt.sign(payload, process.env.ACCESS_KEY, {
+    expiresIn: "10m",
+  });
 
   return accessToken;
 };

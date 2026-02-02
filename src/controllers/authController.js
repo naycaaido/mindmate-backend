@@ -27,6 +27,8 @@ const loginUser = async (req, res, next) => {
   try {
     const { accessToken, refreshToken } = await authService.loginUser(req.body);
 
+    console.log(refreshToken);
+
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -55,6 +57,8 @@ const refreshToken = async (req, res, next) => {
       throw new BadRequestError("Refresh token missing", "TOKEN_MISSING");
     }
 
+    const accessToken = await authService.refreshAccessToken(refreshToken);
+
     res.status(200).json({
       status: "success",
       message: "Access token refreshed",
@@ -64,14 +68,6 @@ const refreshToken = async (req, res, next) => {
     });
   } catch (e) {
     console.error("Error during token refresh:", e.message);
-
-    res.clearCookie("refreshToken", {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
-      path: "/",
-    });
-
     next(e);
   }
 };

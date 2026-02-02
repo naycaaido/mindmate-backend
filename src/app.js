@@ -4,6 +4,7 @@ import routes from "./routes/mainRoutes.js";
 import cors from "cors";
 import morgan from "morgan";
 import errorMiddleware from "./middleware/errorMiddleware.js";
+import cookieParser from "cookie-parser";
 
 dotenv.config();
 
@@ -13,6 +14,7 @@ const HOST = process.env.HOST;
 const app = express();
 
 app.use(express.json());
+app.use(cookieParser());
 app.use(cors());
 app.use(morgan("tiny"));
 app.use("/api", routes);
