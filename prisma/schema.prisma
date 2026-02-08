@@ -50,10 +50,10 @@ model RefreshToken {
 }
 
 model MoodType {
-  id         String @id @default(uuid())
+  id         Int    @id @default(autoincrement())
   moodName   String
   valueScore Int
-  iconUrl    String
+  iconUrl    String?
 
   // Relations
   feelingTags        FeelingTag[]
@@ -62,8 +62,8 @@ model MoodType {
 }
 
 model FeelingTag {
-  id         String   @id @default(uuid())
-  moodTypeId String
+  id         Int      @id @default(autoincrement())
+  moodTypeId Int
   tagName    String
   createdAt  DateTime @default(now())
 
@@ -73,9 +73,9 @@ model FeelingTag {
 }
 
 model ContentTag {
-  id       String @id @default(uuid())
+  id       Int    @id @default(autoincrement())
   tagName  String
-  hexColor String
+  hexColor String?
 
   // Relations
   relaxationContents RelaxationContent[]
@@ -83,8 +83,8 @@ model ContentTag {
 
 model RelaxationContent {
   id              String  @id @default(uuid())
-  moodTypeId      String
-  tagId           String
+  moodTypeId      Int
+  tagId           Int
   title           String
   description     String
   contentType     String // 'YOUTUBE', 'ARTICLE', etc.
@@ -101,8 +101,8 @@ model RelaxationContent {
 model MoodLog {
   id                   String   @id @default(uuid())
   userId               String
-  moodTypeId           String
-  feelingTagId         String? // Optional jika user tidak memilih sub-tag
+  moodTypeId           Int
+  feelingTagId         Int? // Optional jika user tidak memilih sub-tag
   recommendedContentId String? // Optional jika tidak ada rekomendasi
   journalNote          String?
   logDate              DateTime
