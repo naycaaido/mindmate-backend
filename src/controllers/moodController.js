@@ -1,9 +1,9 @@
-import moodService from "../services/moodService.js"
+import moodService from "../services/moodService.js";
 
 const getMood = async (req, res) => {
   try {
     const { userId } = req.body;
-    const userNote =  await moodService.getMood(req.body); 
+    const userNote = await moodService.getMood(req.body);
     console.log(userNote);
     res.json({ userNote });
   } catch (error) {
@@ -18,17 +18,17 @@ const createMood = async (req, res) => {
     const {
       userId,
       recommendedContentId,
-      journalNote,  
+      journalNote,
       moodTypeId,
-      feelingTagId
+      feelingTagId,
     } = req.body;
     const newMood = await moodService.createMood(req.body);
-    res.json({ message: 'Catatan berhasil dibuat', data: newMood });
+    res.json({ message: "Catatan berhasil dibuat", data: newMood });
   } catch (error) {
     console.error(error);
     console.error(error.meta);
     console.log(req.body);
-    res.status(500).json({ message: 'Catatan gagal dibuat' });
+    res.status(500).json({ message: "Catatan gagal dibuat" });
   }
 };
 
@@ -36,11 +36,11 @@ const deleteMood = async (req, res) => {
   try {
     const { id } = req.params;
     await moodService.deleteMood(req.params);
-    res.json({ message: 'Catatan berhasil dihapus' });
+    res.json({ message: "Catatan berhasil dihapus" });
   } catch (error) {
     console.error(error);
     console.error(error.meta);
-    res.status(500).json({ message: 'Catatan gagal dihapus '});
+    res.status(500).json({ message: "Catatan gagal dihapus " });
   }
 };
 
@@ -49,11 +49,11 @@ const updateMood = async (req, res) => {
     const { id } = req.params;
     const { journalNote, moodTypeId, feelingTagId } = req.body;
     const updated = await moodService.updateMood(req.params, req.body);
-    res.json({ message: 'Catatan berhasil diperbarui', data: updated });
+    res.json({ message: "Catatan berhasil diperbarui", data: updated });
   } catch (error) {
     console.error(error);
     console.error(error.meta);
-    res.status(500).json({ message: 'Catatan gagal diperbarui' })
+    res.status(500).json({ message: "Catatan gagal diperbarui" });
   }
 };
 
@@ -62,4 +62,4 @@ export default {
   createMood,
   deleteMood,
   updateMood,
-}
+};
