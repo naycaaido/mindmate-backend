@@ -1,6 +1,8 @@
 import prisma from "../database/prisma.js";
 import NotFoundError from "../exceptions/NotFoundError.js";
 
+
+
 const getMood = async (userId) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
 
