@@ -170,96 +170,106 @@ async function main() {
 }
 
 async function moodSeed() {
-  const targetUserId = "1e54f723-2841-4d66-a82c-91af17cdb45f"; // User ID Target
+  const targetUserId = "3e9ecb03-56cd-4e8c-b8fa-14dd70612ce2"; // User ID Target
 
-  const result = await prisma.moodLog.findMany({
-    where: { userId: targetUserId },
-  });
-  
-  console.log(result);
-  //   console.log(`Creating mood logs for user: ${targetUserId}...`);
+  // const result = await prisma.moodLog.findMany({
+  //   where: { userId: targetUserId },
+  // });
 
-  //   // Helper untuk membuat tanggal mundur (H-1, H-2, dst)
-  //   const getPastDate = (daysAgo) => {
-  //     const date = new Date();
-  //     date.setDate(date.getDate() - daysAgo);
-  //     return date;
-  //   };
+  // console.log(result);
+  console.log(`Creating mood logs for user: ${targetUserId}...`);
 
-  //   // Data Skenario Log (Cerita: Dari Stres -> Membaik -> Bahagia)
-  //   const logScenarios = [
-  //     {
-  //       daysAgo: 6,
-  //       moodId: 0, // Very Sad
-  //       tagName: "Depressed",
-  //       note: "Rasanya berat sekali memulai minggu ini. Banyak tekanan dari tugas akhir.",
-  //     },
-  //     {
-  //       daysAgo: 5,
-  //       moodId: 1, // Sad
-  //       tagName: "Tired",
-  //       note: "Kurang tidur karena begadang, tapi setidaknya ada sedikit progres.",
-  //     },
-  //     {
-  //       daysAgo: 4,
-  //       moodId: 1, // Sad
-  //       tagName: "Anxious",
-  //       note: "Besok ada presentasi, jantung berdebar terus.",
-  //     },
-  //     {
-  //       daysAgo: 3,
-  //       moodId: 2, // Normal
-  //       tagName: "Focused",
-  //       note: "Mencoba fokus mengerjakan revisi. Not bad.",
-  //     },
-  //     {
-  //       daysAgo: 2,
-  //       moodId: 3, // Happy
-  //       tagName: "Relieved",
-  //       note: "Presentasi selesai! Rasanya beban 100kg diangkat dari pundak.",
-  //     },
-  //     {
-  //       daysAgo: 1,
-  //       moodId: 3, // Happy
-  //       tagName: "Relaxed",
-  //       note: "Hari ini santai, main game dan dengar lagu seharian.",
-  //     },
-  //     {
-  //       daysAgo: 0, // Hari Ini
-  //       moodId: 4, // Very Happy
-  //       tagName: "Proud",
-  //       note: "Dapat feedback positif dari dosen pembimbing. Sangat bangga dengan diri sendiri!",
-  //     },
-  //   ];
+  // Helper untuk membuat tanggal mundur (H-1, H-2, dst)
+  const getPastDate = (daysAgo) => {
+    const date = new Date();
+    date.setDate(date.getDate() - daysAgo);
+    return date;
+  };
 
-  //   // Loop untuk insert data
-  //   for (const log of logScenarios) {
-  //     // 1. Cari ID Feeling Tag berdasarkan nama (Dynamic Lookup)
-  //     const tag = await prisma.feelingTag.findFirst({
-  //       where: {
-  //         tagName: log.tagName,
-  //         moodTypeId: log.moodId,
-  //       },
-  //     });
+  // Data Skenario Log (Cerita: Dari Stres -> Membaik -> Bahagia)
+  const logScenarios = [
+    {
+      daysAgo: 6,
+      moodId: 0, // Very Sad
+      tagName: "Depressed",
+      note: "Rasanya berat sekali memulai minggu ini. Banyak tekanan dari tugas akhir.",
+    },
+    {
+      daysAgo: 5,
+      moodId: 1, // Sad
+      tagName: "Tired",
+      note: "Kurang tidur karena begadang, tapi setidaknya ada sedikit progres.",
+    },
+    {
+      daysAgo: 4,
+      moodId: 1, // Sad
+      tagName: "Anxious",
+      note: "Besok ada presentasi, jantung berdebar terus.",
+    },
+    {
+      daysAgo: 3,
+      moodId: 2, // Normal
+      tagName: "Focused",
+      note: "Mencoba fokus mengerjakan revisi. Not bad.",
+    },
+    {
+      daysAgo: 2,
+      moodId: 3, // Happy
+      tagName: "Relieved",
+      note: "Presentasi selesai! Rasanya beban 100kg diangkat dari pundak.",
+    },
+    {
+      daysAgo: 1,
+      moodId: 3, // Happy
+      tagName: "Relaxed",
+      note: "Hari ini santai, main game dan dengar lagu seharian.",
+    },
+    {
+      daysAgo: 0, // Hari Ini
+      moodId: 4, // Very Happy
+      tagName: "Proud",
+      note: "Dapat feedback positif dari dosen pembimbing. Sangat bangga dengan diri sendiri!",
+    },
+  ];
 
-  //     if (tag) {
-  //       await prisma.moodLog.create({
-  //         data: {
-  //           userId: targetUserId,
-  //           moodTypeId: log.moodId,
-  //           feelingTagId: tag.id, // Pakai ID yang ditemukan
-  //           logDate: getPastDate(log.daysAgo),
-  //           journalNote: log.note,
-  //           recommendedContentId: null, // Biarkan null dulu untuk seed manual
-  //         },
-  //       });
-  //     }
-  //   }
+  // Loop untuk insert data
+  for (const log of logScenarios) {
+    // 1. Cari ID Feeling Tag berdasarkan nama (Dynamic Lookup)
+    const tag = await prisma.feelingTag.findFirst({
+      where: {
+        tagName: log.tagName,
+        moodTypeId: log.moodId,
+      },
+    });
+
+    if (tag) {
+      await prisma.moodLog.create({
+        data: {
+          userId: targetUserId,
+          moodTypeId: log.moodId,
+          feelingTagId: tag.id, // Pakai ID yang ditemukan
+          logDate: getPastDate(log.daysAgo),
+          journalNote: log.note,
+          recommendedContentId: null, // Biarkan null dulu untuk seed manual
+        },
+      });
+    }
+  }
 
   console.log("✅ 7 Days of Mood Logs created for user.");
 }
 
-// main()
+main()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
+
+// moodSeed()
 //   .then(async () => {
 //     await prisma.$disconnect();
 //   })
@@ -269,12 +279,18 @@ async function moodSeed() {
 //     process.exit(1);
 //   });
 
-moodSeed()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+// async function getAllMoods() {
+//   return await prisma.moodLog.findMany({
+//     where: { userId: "1e54f723-2841-4d66-a82c-91af17cdb45f" },
+//   });
+// }
+
+// getAllMoods()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });

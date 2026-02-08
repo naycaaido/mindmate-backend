@@ -1,39 +1,95 @@
 import prisma from "../database/prisma.js";
+import NotFoundError from "../exceptions/NotFoundError.js";
 
 const getMood = async (userId) => {
+  const user = await prisma.user.findUnique({ where: { id: userId } });
+
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+
   return await prisma.moodLog.findMany({
-    where: userId,
+    where: { userId },
   });
 };
 
-const createMood = async (body) => {
-  return await prisma.moodLog.create({
+const createMood = async (
+  userId,
+  journalNote,
+  logDate,
+  moodTypeId,
+  feelingTagIds,
+) => {
+  const tagConnections = feelingTagIds.map((tagId) => ({
+    feelingTagId: tagId,
+  }));
+
+  const newLog = await prisma.moodLog.create({
     data: {
-      userId: body.userId,
-      recommendedContentId: body.recommendedContentId,
-      journalNote: body.journalNote,
-      logDate: new Date(),
-      createdAt: new Date(),
-      moodTypeId: body.moodTypeId,
-      feelingTagId: body.feelingTagId,
+      userId,
+      moodTypeId: moodTypeId,
+      logDate: new Date(logDate),
+      journalNote,
+
+      moodLogTags: {
+        create: tagConnections,
+      },
+    },
+
+    include: {
+      moodLogTags: {
+        include: {
+          feelingTag: true,
+        },
+      },
     },
   });
+
+  return newLog;
 };
 
 const deleteMood = async (id) => {
-  return await prisma.moodLog.delete({ where: id });
+  return await prisma.moodLog.delete({ where: { id } });
 };
 
-const updateMood = async (id, body) => {
-  return await prisma.moodLog.update({
-    where: id,
-    data: {
-      journalNote: body.journalNote,
-      feelingTagId: body.feelingTagId,
-      moodTypeId: body.moodTypeId,
-      logDate: new Date(),
+const updateMood = async (
+  id,
+  moodTypeId,
+  logDate,
+  journalNote,
+  feelingTagIds,
+) => {
+  const updateData = {};
+
+  if (journalNote !== undefined) updateData.journalNote = journalNote;
+
+  if (moodTypeId) updateData.moodTypeId = parseInt(moodTypeId);
+  if (logDate) updateData.logDate = new Date(logDate);
+
+  if (feelingTagIds && Array.isArray(feelingTagIds)) {
+    updateData.moodLogTags = {
+      deleteMany: {},
+
+      create: feelingTagIds.map((tagId) => ({
+        feelingTagId: parseInt(tagId),
+      })),
+    };
+  }
+
+  const updatedLog = await prisma.moodLog.update({
+    where: { id: id },
+    data: updateData,
+    include: {
+      moodType: true,
+      moodLogTags: {
+        include: {
+          feelingTag: true,
+        },
+      },
     },
   });
+
+  return updatedLog;
 };
 
 export default {

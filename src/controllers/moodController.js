@@ -1,62 +1,69 @@
 import moodService from "../services/moodService.js";
+import NotFoundError from "../exceptions/NotFoundError.js";
 
-const getMood = async (req, res) => {
+const getMood = async (req, res, next) => {
   try {
-    console.log(req.user);
-    const { userId } = req.user;
+    const userId = req.user;
+
+    if (!userId) {
+      throw new NotFoundError("user id not found");
+    }
 
     const userNote = await moodService.getMood(userId);
 
-    console.log(userNote);
-    res.json({ userNote });
+    res.json({
+      message: "successfuly getting all data",
+      data: userNote,
+    });
   } catch (error) {
-    console.error(error);
-    console.error(error.meta);
-    res.status(404).json({ message: "Catatan tidak ditemukan" });
+    next(error);
   }
 };
 
-const createMood = async (req, res) => {
+const createMood = async (req, res, next) => {
   try {
-    const {
+    const { journalNote, moodTypeId, feelingTagIds, logDate } = req.body;
+    const userId = req.user;
+
+    const newMood = await moodService.createMood(
       userId,
-      recommendedContentId,
       journalNote,
+      logDate,
       moodTypeId,
-      feelingTagId,
-    } = req.body;
-    const newMood = await moodService.createMood(req.body);
-    res.json({ message: "Catatan berhasil dibuat", data: newMood });
+      feelingTagIds,
+    );
+
+    res.status(201).json({ message: "Catatan berhasil dibuat", data: newMood });
   } catch (error) {
-    console.error(error);
-    console.error(error.meta);
-    console.log(req.body);
-    res.status(500).json({ message: "Catatan gagal dibuat" });
+    next(error);
   }
 };
 
-const deleteMood = async (req, res) => {
+const deleteMood = async (req, res, next) => {
   try {
     const { id } = req.params;
-    await moodService.deleteMood(req.params);
+    await moodService.deleteMood(id);
+
     res.json({ message: "Catatan berhasil dihapus" });
   } catch (error) {
-    console.error(error);
-    console.error(error.meta);
-    res.status(500).json({ message: "Catatan gagal dihapus " });
+    next(error);
   }
 };
 
-const updateMood = async (req, res) => {
+const updateMood = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { journalNote, moodTypeId, feelingTagId } = req.body;
-    const updated = await moodService.updateMood(req.params, req.body);
+    const { moodTypeId, logDate, journalNote, feelingTagIds } = req.body;
+    const updated = await moodService.updateMood(
+      id,
+      moodTypeId,
+      logDate,
+      journalNote,
+      feelingTagIds,
+    );
     res.json({ message: "Catatan berhasil diperbarui", data: updated });
   } catch (error) {
-    console.error(error);
-    console.error(error.meta);
-    res.status(500).json({ message: "Catatan gagal diperbarui" });
+    next(error);
   }
 };
 
