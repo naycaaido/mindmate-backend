@@ -2,8 +2,11 @@ import moodService from "../services/moodService.js";
 
 const getMood = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const userNote = await moodService.getMood(req.body);
+    console.log(req.user);
+    const { userId } = req.user;
+
+    const userNote = await moodService.getMood(userId);
+
     console.log(userNote);
     res.json({ userNote });
   } catch (error) {

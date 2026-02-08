@@ -3,16 +3,6 @@ import prisma from "../database/prisma.js";
 const getMood = async (userId) => {
   return await prisma.moodLog.findMany({
     where: userId,
-    select: {
-      id: true,
-      userId: true,
-      recommendedContentId: true,
-      journalNote: true,
-      logDate: true,
-      createdAt: true,
-      moodTypeId: true,
-      feelingTagId: true,
-    },
   });
 };
 

@@ -25,7 +25,7 @@ const validateToken = async (req, res, next) => {
           }
         }
 
-        req.user = decoded.user;
+        req.user = decoded.id;
         return next();
       });
 

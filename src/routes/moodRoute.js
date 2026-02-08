@@ -1,7 +1,10 @@
 import { Router } from "express";
 import moodController from "../controllers/moodController.js";
+import validateToken from "../middleware/validateToken.js";
 
 const moodRouter = Router();
+
+moodRouter.use(validateToken);
 
 moodRouter.get("/", moodController.getMood);
 
