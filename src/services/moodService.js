@@ -1,8 +1,6 @@
 import prisma from "../database/prisma.js";
 import NotFoundError from "../exceptions/NotFoundError.js";
 
-
-
 const getMood = async (userId) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
 
@@ -12,6 +10,9 @@ const getMood = async (userId) => {
 
   return await prisma.moodLog.findMany({
     where: { userId },
+    include: {
+      moodLogTags: true,
+    },
   });
 };
 
