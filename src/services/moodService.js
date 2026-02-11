@@ -1,5 +1,6 @@
 import prisma from "../database/prisma.js";
 import NotFoundError from "../exceptions/NotFoundError.js";
+import streakService from "./streakService.js";
 
 const getMood = async (userId) => {
   const user = await prisma.user.findUnique({ where: { id: userId } });
@@ -48,7 +49,12 @@ const createMood = async (
     },
   });
 
-  return newLog;
+  const streak = await streakService.calculateStreak(userId, logDate);
+
+  return {
+    newLog,
+    streak,
+  };
 };
 
 const deleteMood = async (id) => {
