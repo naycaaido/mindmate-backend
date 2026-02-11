@@ -19,7 +19,6 @@ async function main() {
       id: 0, // Sesuai urutan di gambar
       moodName: "Very Sad",
       valueScore: 1,
-      iconUrl: null,
     },
   });
 
@@ -29,7 +28,6 @@ async function main() {
       id: 1, // Sesuai urutan di gambar
       moodName: "Sad",
       valueScore: 2,
-      iconUrl: null,
     },
   });
 
@@ -39,7 +37,6 @@ async function main() {
       id: 2, // Sesuai urutan di gambar
       moodName: "Normal",
       valueScore: 3,
-      iconUrl: null,
     },
   });
 
@@ -49,7 +46,6 @@ async function main() {
       id: 3, // Sesuai urutan di gambar
       moodName: "Happy",
       valueScore: 4,
-      iconUrl: null,
     },
   });
 
@@ -59,7 +55,6 @@ async function main() {
       id: 4, // Sesuai urutan di gambar
       moodName: "Very Happy",
       valueScore: 5,
-      iconUrl: null,
     },
   });
 
@@ -170,7 +165,7 @@ async function main() {
 }
 
 async function moodSeed() {
-  const targetUserId = "3e9ecb03-56cd-4e8c-b8fa-14dd70612ce2"; // User ID Target
+  const targetUserId = "10297464-3699-4fbc-83f7-522099ea9efa"; // User ID Target
 
   // const result = await prisma.moodLog.findMany({
   //   where: { userId: targetUserId },
@@ -259,17 +254,7 @@ async function moodSeed() {
   console.log("✅ 7 Days of Mood Logs created for user.");
 }
 
-main()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
-
-// moodSeed()
+// main()
 //   .then(async () => {
 //     await prisma.$disconnect();
 //   })
@@ -278,6 +263,16 @@ main()
 //     await prisma.$disconnect();
 //     process.exit(1);
 //   });
+
+moodSeed()
+  .then(async () => {
+    await prisma.$disconnect();
+  })
+  .catch(async (e) => {
+    console.error(e);
+    await prisma.$disconnect();
+    process.exit(1);
+  });
 
 // async function getAllMoods() {
 //   return await prisma.moodLog.findMany({

@@ -18,6 +18,7 @@ const registerUser = async ({ username, email, password }) => {
       username,
       email,
       password: hashedPassword,
+      login_provider: "manual",
     },
   });
 
