@@ -5,6 +5,7 @@ import cors from "cors";
 import morgan from "morgan";
 import errorMiddleware from "./middleware/errorMiddleware.js";
 import cookieParser from "cookie-parser";
+import oauthRouter from "./routes/oauthRoute.js";
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use(cookieParser());
 app.use(morgan("tiny"));
 app.use("/api", routes);
 app.use(errorMiddleware);
+app.use("/", oauthRouter);
 
 app.get("/", (req, res) => {
   res.send("Hello World");
