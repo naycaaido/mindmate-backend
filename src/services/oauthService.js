@@ -61,7 +61,7 @@ async function authCallback(code) {
     const { exp } = jwt.decode(refreshToken);
     await prisma.refreshToken.create({
       data: {
-        user_id: user.id,
+        userId: user.id,
         token: refreshToken,
         expired_at: new Date(exp * 1000),
       },
