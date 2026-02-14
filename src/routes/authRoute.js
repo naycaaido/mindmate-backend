@@ -1,26 +1,15 @@
 import { Router } from "express";
+import authController from "../controllers/authController.js";
 
 const authRouter = Router();
 
 // register & login
-authRouter.post(
-  "/register",
-  validate(authValidation.registerSchema),
-  authController.registerUser,
-);
 
-authRouter.post(
-  "/login",
-  validate(authValidation.loginSchema),
-  authController.loginUser,
-);
+authRouter.post("/register", authController.registerUser);
 
-// refresh & logout
-authRouter.post(
-  "/refresh",
-  validate(authValidation.refreshSchema),
-  authController.refreshToken,
-);
+authRouter.post("/login", authController.loginUser);
+
+authRouter.post("/refresh", authController.refreshToken);
 
 authRouter.post("/logout", authController.logoutUser);
 

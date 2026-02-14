@@ -5,20 +5,23 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DIRECT_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
-  id           String   @id @default(uuid())
-  username     String
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+  id            String   @id @default(uuid())
+  photo_profile String?
+  username      String
+  email         String   @unique
+  password      String
+  createdAt     DateTime @default(now())
 
   // Relations
-  streaks  UserStreak[]
-  moodLogs MoodLog[]
+  streaks       UserStreak[]
+  moodLogs      MoodLog[]
+  refreshTokens RefreshToken[]
 }
 
 model UserStreak {
@@ -35,33 +38,21 @@ model UserStreak {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-model MoodType {
-  id         String @id @default(uuid())
-  moodName   String
-  valueScore Int // Skala 1-5
-  iconUrl    String
-
-  // Relations
-  feelingTags        FeelingTag[]
-  relaxationContents RelaxationContent[]
-  moodLogs           MoodLog[]
-}
-
-model FeelingTag {
+model RefreshToken {
   id         String   @id @default(uuid())
-  moodTypeId String
-  tagName    String
-  createdAt  DateTime @default(now())
+  userId     String
+  token      String   @unique
+  revoked    Boolean  @default(false)
+  expired_at DateTime
+  created_at DateTime @default(now())
 
-  // Relations
-  moodType MoodType  @relation(fields: [moodTypeId], references: [id], onDelete: Cascade)
-  moodLogs MoodLog[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model ContentTag {
-  id       String @id @default(uuid())
+  id       Int     @id @default(autoincrement())
   tagName  String
-  hexColor String
+  hexColor String?
 
   // Relations
   relaxationContents RelaxationContent[]
@@ -69,8 +60,8 @@ model ContentTag {
 
 model RelaxationContent {
   id              String  @id @default(uuid())
-  moodTypeId      String
-  tagId           String
+  moodTypeId      Int
+  tagId           Int
   title           String
   description     String
   contentType     String // 'YOUTUBE', 'ARTICLE', etc.
@@ -84,21 +75,63 @@ model RelaxationContent {
   recommendedLogs MoodLog[] // Log dimana konten ini direkomendasikan
 }
 
+model MoodType {
+  id         Int     @id @default(autoincrement())
+  moodName   String
+  valueScore Int
+  iconUrl    String?
+
+  feelingTags        FeelingTag[]
+  relaxationContents RelaxationContent[]
+  moodLogs           MoodLog[]
+}
+
+// 1. Master Data Feeling (Tetap Bersih)
+model FeelingTag {
+  id         Int      @id @default(autoincrement())
+  moodTypeId Int
+  tagName    String
+  createdAt  DateTime @default(now())
+
+  moodType MoodType @relation(fields: [moodTypeId], references: [id], onDelete: Cascade)
+
+  // Ubah relasi ke tabel perantara
+  logTags MoodLogTag[]
+}
+
+// 2. Tabel Utama MoodLog
 model MoodLog {
   id                   String   @id @default(uuid())
   userId               String
-  moodTypeId           String
-  feelingTagId         String? // Optional jika user tidak memilih sub-tag
-  recommendedContentId String? // Optional jika tidak ada rekomendasi
+  moodTypeId           Int
+  recommendedContentId String?
   journalNote          String?
   logDate              DateTime
   createdAt            DateTime @default(now())
 
-  // Relations
   user               User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   moodType           MoodType           @relation(fields: [moodTypeId], references: [id])
-  feelingTag         FeelingTag?        @relation(fields: [feelingTagId], references: [id])
   recommendedContent RelaxationContent? @relation(fields: [recommendedContentId], references: [id])
 
+  // Ubah relasi ke tabel perantara
+  moodLogTags MoodLogTag[]
+
   @@index([userId, logDate])
+}
+
+// 3. TABEL KETIGA (Jembatan / Junction Table)
+model MoodLogTag {
+  id           String @id @default(uuid())
+  moodLogId    String
+  feelingTagId Int
+
+  // Relasi ke Parent (Log)
+  moodLog MoodLog @relation(fields: [moodLogId], references: [id], onDelete: Cascade)
+
+  // Relasi ke Master Data (Tag)
+  feelingTag FeelingTag @relation(fields: [feelingTagId], references: [id], onDelete: Cascade)
+
+  // Mencegah duplikat: 1 Log tidak boleh punya Tag yang sama 2 kali
+  @@unique([moodLogId, feelingTagId])
+  @@map("mood_log_tags")
 }
