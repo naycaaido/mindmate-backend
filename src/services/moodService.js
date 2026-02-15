@@ -66,7 +66,9 @@ const updateMood = async (
 
   if (journalNote !== undefined) updateData.journalNote = journalNote;
 
-  if (moodTypeId) updateData.moodTypeId = parseInt(moodTypeId);
+  // if (moodTypeId) updateData.moodTypeId = parseInt(moodTypeId); 
+  if (moodTypeId != null && moodTypeId != undefined) updateData.moodTypeId = parseInt(moodTypeId);
+
   if (logDate) updateData.logDate = new Date(logDate);
 
   if (feelingTagIds && Array.isArray(feelingTagIds)) {
