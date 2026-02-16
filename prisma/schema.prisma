@@ -10,13 +10,21 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+enum LoginProvider {
+  manual
+  google
+}
+
 model User {
-  id            String   @id @default(uuid())
-  photo_profile String?
-  username      String
-  email         String   @unique
-  password      String
-  createdAt     DateTime @default(now())
+  id             String        @id @default(uuid())
+  username       String
+  email          String        @unique
+  password       String?
+  login_provider LoginProvider
+  oauth_id       String?
+  photo_profile  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
 
   // Relations
   streaks       UserStreak[]
@@ -76,10 +84,9 @@ model RelaxationContent {
 }
 
 model MoodType {
-  id         Int     @id @default(autoincrement())
+  id         Int    @id @default(autoincrement())
   moodName   String
   valueScore Int
-  iconUrl    String?
 
   feelingTags        FeelingTag[]
   relaxationContents RelaxationContent[]
