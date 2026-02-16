@@ -220,17 +220,138 @@ async function moodSeed(targetUserId) {
   );
 }
 
-// ==========================================
-// GANTI ID INI DENGAN UUID USER DI DATABASEMU
-// ==========================================
-const USER_ID_TARGET = "204cbcbc-03ca-4c84-bfca-db3fe35a25d7";
+// main()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
 
-moodSeed(USER_ID_TARGET)
-  .then(async () => {
-    await prisma.$disconnect();
+// moodSeed()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
+
+// async function getAllMoods() {
+//   return await prisma.moodLog.findMany({
+//     where: { userId: "1e54f723-2841-4d66-a82c-91af17cdb45f" },
+//   });
+// }
+
+// getAllMoods()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
+
+// let oldData = "";
+
+// prisma.moodLog
+//   .findMany({
+//     where: { userId: "3e9ecb03-56cd-4e8c-b8fa-14dd70612ce2" },
+//     orderBy: {
+//       logDate: "desc",
+//     },
+//   })
+//   .then((data) => {
+//     oldData = data[1];
+//     console.log(oldData.logDate);
+//     console.log(typeof oldData.logDate);
+//   });
+
+async function seedUserStreak() {
+  console.log("Start seeding UserStreak...");
+
+  // 1. TARGET USER
+  // Ganti dengan UUID user yang benar-benar ada di database kamu
+  const targetUserId = "59da58ed-876b-4cb6-ac1c-6947ee94e7b0";
+
+  // 2. CLEANUP (Hapus streak lama biar tidak duplikat saat seed ulang)
+  await prisma.userStreak.deleteMany({
+    where: { userId: targetUserId },
+  });
+
+  const today = new Date();
+
+  // ==========================================
+  // SKENARIO A: Streak Masa Lalu (History)
+  // Cerita: Bulan lalu dia rajin 7 hari berturut-turut, lalu putus.
+  // ==========================================
+
+  const pastEndDate = new Date();
+  pastEndDate.setDate(today.getDate() - 30); // Berakhir 30 hari yang lalu
+
+  const pastStartDate = new Date(pastEndDate);
+  pastStartDate.setDate(pastEndDate.getDate() - 6); // Mundur 6 hari (Total length 7 hari)
+
+  await prisma.userStreak.create({
+    data: {
+      userId: targetUserId,
+      length: 7, // 7 Hari berturut-turut
+      startDate: pastStartDate,
+      endDate: pastEndDate, // Terakhir log 30 hari lalu
+      isActive: false, // SUDAH TIDAK AKTIF (Putus)
+      updatedAt: pastEndDate, // Wajib diisi karena di schema tidak ada @updatedAt auto
+    },
+  });
+
+  // ==========================================
+  // SKENARIO B: Streak Saat Ini (Active)
+  // Cerita: Dia baru mulai rajin lagi 5 hari terakhir ini.
+  // ==========================================
+
+  const currentStartDate = new Date();
+  currentStartDate.setDate(today.getDate() - 4); // Mulai 4 hari lalu (Total length 5 hari termasuk hari ini)
+
+  await prisma.userStreak.create({
+    data: {
+      userId: targetUserId,
+      length: 5, // 5 Hari berturut-turut
+      startDate: currentStartDate,
+      endDate: today, // Terakhir log HARI INI
+      isActive: true, // MASIH AKTIF
+      updatedAt: today,
+    },
+  });
+
+  console.log(`✅ UserStreak seeded for user ${targetUserId}`);
+}
+
+// seedUserStreak()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
+
+let array = [];
+
+prisma.userStreak
+  .findMany({
+    where: { userId: "59da58ed-876b-4cb6-ac1c-6947ee94e7b0" },
+    orderBy: {
+      isActive: "desc",
+    },
   })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
+  .then((data) => {
+    array = data.map((obj) =>{
+      if(obj){
+        
+      }
+    })
   });
