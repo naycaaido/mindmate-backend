@@ -3,6 +3,8 @@ import authRouter from "./authRoute.js";
 import moodRouter from "./moodRoute.js";
 import feelingRouter from "./feelingTagRoutes.js";
 import moodTypeRoute from "./moodTypeRoute.js";
+import analyticsRoute from "./analyticsRoute.js";
+import userRoutes from "./userRoutes.js";
 
 const router = Router();
 
@@ -10,5 +12,7 @@ router.use("/auth", authRouter);
 router.use("/mood", moodRouter);
 router.use("/feelings", feelingRouter);
 router.use("/mood-type", moodTypeRoute);
+router.use("/analytics", analyticsRoute);
+router.use("/user", userRoutes);
 
 export default router;

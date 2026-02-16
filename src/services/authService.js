@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 
 import BadRequestError from "../exceptions/BadRequestError.js";
 import UnauthorizedError from "../exceptions/UnauthorizedError.js";
+import NotFoundError from "../exceptions/NotFoundError.js";
+import ForbiddenError from "../exceptions/ForbiddenError.js";
 
 const registerUser = async ({ username, email, password }) => {
   const existingUser = await prisma.user.findUnique({ where: { email } });

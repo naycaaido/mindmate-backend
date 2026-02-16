@@ -2,256 +2,222 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-async function main() {
-  console.log("Start seeding MoodType & Categories...");
+async function moodSeed(targetUserId) {
+  console.log(
+    `\n⏳ Creating 30 days of mood logs for user: ${targetUserId}...`,
+  );
 
-  // 1. CLEANUP (Hapus data lama)
-  await prisma.moodType.deleteMany();
-  await prisma.feelingTag.deleteMany();
-  await prisma.relaxationContent.deleteMany();
-
-  // 2. SEED MOOD TYPES (Sesuai Gambar: Skala 1-5)
-  // Kita simpan dalam variabel untuk referensi ID nanti
-
-  // ID 4: Very Sad (Score 1) - Menampung Depresi, Cemas Parah, Marah Besar
-  const moodVerySad = await prisma.moodType.create({
-    data: {
-      id: 0, // Sesuai urutan di gambar
-      moodName: "Very Sad",
-      valueScore: 1,
-    },
+  // Hapus log lama untuk user ini agar tidak menumpuk jika di-run berkali-kali
+  await prisma.moodLog.deleteMany({
+    where: { userId: targetUserId },
   });
 
-  // ID 5: Sad (Score 2) - Menampung Sedih ringan, Lelah, Kecewa
-  const moodSad = await prisma.moodType.create({
-    data: {
-      id: 1, // Sesuai urutan di gambar
-      moodName: "Sad",
-      valueScore: 2,
-    },
-  });
-
-  // ID 1: Normal (Score 3) - Netral
-  const moodNormal = await prisma.moodType.create({
-    data: {
-      id: 2, // Sesuai urutan di gambar
-      moodName: "Normal",
-      valueScore: 3,
-    },
-  });
-
-  // ID 2: Happy (Score 4) - Positif ringan
-  const moodHappy = await prisma.moodType.create({
-    data: {
-      id: 3, // Sesuai urutan di gambar
-      moodName: "Happy",
-      valueScore: 4,
-    },
-  });
-
-  // ID 3: Very Happy (Score 5) - Positif tinggi
-  const moodVeryHappy = await prisma.moodType.create({
-    data: {
-      id: 4, // Sesuai urutan di gambar
-      moodName: "Very Happy",
-      valueScore: 5,
-    },
-  });
-
-  console.log("✅ Mood Types Created (1-5 Scale)");
-
-  await prisma.feelingTag.createMany({
-    data: [
-      { moodTypeId: moodVerySad.id, tagName: "Depressed" },
-      { moodTypeId: moodVerySad.id, tagName: "Hopeless" },
-      { moodTypeId: moodVerySad.id, tagName: "Furious" }, // Sangat Marah
-      { moodTypeId: moodVerySad.id, tagName: "Panicked" },
-      { moodTypeId: moodVerySad.id, tagName: "Empty" }, // Hampa
-      { moodTypeId: moodVerySad.id, tagName: "Hurt" },
-      { moodTypeId: moodVerySad.id, tagName: "Traumatized" },
-    ],
-  });
-
-  // --- Tags for SAD (id: 1) ---
-  await prisma.feelingTag.createMany({
-    data: [
-      { moodTypeId: moodSad.id, tagName: "Sad" },
-      { moodTypeId: moodSad.id, tagName: "Disappointed" },
-      { moodTypeId: moodSad.id, tagName: "Tired" },
-      { moodTypeId: moodSad.id, tagName: "Lonely" },
-      { moodTypeId: moodSad.id, tagName: "Insecure" },
-      { moodTypeId: moodSad.id, tagName: "Anxious" }, // Gelisah
-      { moodTypeId: moodSad.id, tagName: "Annoyed" }, // Kesal
-      { moodTypeId: moodSad.id, tagName: "Unmotivated" }, // Malas
-    ],
-  });
-
-  // --- Tags for NORMAL (id: 2) ---
-  await prisma.feelingTag.createMany({
-    data: [
-      { moodTypeId: moodNormal.id, tagName: "Okay" }, // Biasa Saja
-      { moodTypeId: moodNormal.id, tagName: "Calm" },
-      { moodTypeId: moodNormal.id, tagName: "Focused" },
-      { moodTypeId: moodNormal.id, tagName: "Bored" },
-      { moodTypeId: moodNormal.id, tagName: "Confused" },
-      { moodTypeId: moodNormal.id, tagName: "Sleepy" },
-    ],
-  });
-
-  // --- Tags for HAPPY (id: 3) ---
-  await prisma.feelingTag.createMany({
-    data: [
-      { moodTypeId: moodHappy.id, tagName: "Happy" },
-      { moodTypeId: moodHappy.id, tagName: "Grateful" },
-      { moodTypeId: moodHappy.id, tagName: "Relaxed" },
-      { moodTypeId: moodHappy.id, tagName: "Optimistic" },
-      { moodTypeId: moodHappy.id, tagName: "Relieved" }, // Lega
-      { moodTypeId: moodHappy.id, tagName: "Comfortable" }, // Nyaman
-    ],
-  });
-
-  // --- Tags for VERY HAPPY (id: 4) ---
-  await prisma.feelingTag.createMany({
-    data: [
-      { moodTypeId: moodVeryHappy.id, tagName: "Excited" }, // Bersemangat
-      { moodTypeId: moodVeryHappy.id, tagName: "Proud" },
-      { moodTypeId: moodVeryHappy.id, tagName: "In Love" },
-      { moodTypeId: moodVeryHappy.id, tagName: "Inspired" },
-      { moodTypeId: moodVeryHappy.id, tagName: "Satisfied" }, // Puas
-      { moodTypeId: moodVeryHappy.id, tagName: "Euphoric" },
-    ],
-  });
-
-  console.log("✅ Feeling Tags populated successfully.");
-
-  // =======================================================
-  // 4. SEED CONTENT TAGS (Label untuk Konten Relaksasi)
-  // =======================================================
-
-  // Tag: Meditation (Ungu - Spiritual/Tenang)
-  const tagMeditasi = await prisma.contentTag.create({
-    data: { tagName: "Meditation", hexColor: "#8E44AD" },
-  });
-
-  // Tag: Breathing (Biru Muda - Udara/Segar)
-  const tagBreathing = await prisma.contentTag.create({
-    data: { tagName: "Breathing", hexColor: "#3498DB" },
-  });
-
-  // Tag: Sleep & Rest (Biru Gelap - Malam)
-  const tagSleep = await prisma.contentTag.create({
-    data: { tagName: "Sleep & Rest", hexColor: "#2C3E50" },
-  });
-
-  // Tag: Yoga & Movement (Hijau - Alam/Fisik)
-  const tagYoga = await prisma.contentTag.create({
-    data: { tagName: "Yoga & Movement", hexColor: "#27AE60" },
-  });
-
-  // Tag: Music & Lofi (Kuning/Oranye - Kreatif/Hangat)
-  const tagMusic = await prisma.contentTag.create({
-    data: { tagName: "Music & Lofi", hexColor: "#F39C12" },
-  });
-
-  // Tag: Motivation (Merah - Energi/Semangat)
-  const tagMotivation = await prisma.contentTag.create({
-    data: { tagName: "Motivation", hexColor: "#E74C3C" },
-  });
-
-  // Tag: Education (Teal - Pengetahuan/Kejelasan)
-  const tagEducation = await prisma.contentTag.create({
-    data: { tagName: "Education", hexColor: "#16A085" },
-  });
-}
-
-async function moodSeed() {
-  const targetUserId = "10297464-3699-4fbc-83f7-522099ea9efa"; // User ID Target
-
-  // const result = await prisma.moodLog.findMany({
-  //   where: { userId: targetUserId },
-  // });
-
-  // console.log(result);
-  console.log(`Creating mood logs for user: ${targetUserId}...`);
-
-  // Helper untuk membuat tanggal mundur (H-1, H-2, dst)
+  // Helper untuk membuat tanggal mundur
   const getPastDate = (daysAgo) => {
     const date = new Date();
     date.setDate(date.getDate() - daysAgo);
     return date;
   };
 
-  // Data Skenario Log (Cerita: Dari Stres -> Membaik -> Bahagia)
+  // Skenario 30 Hari (Dari H-29 sampai H-0)
+  // Pola: Santai -> Mulai Sibuk -> Stres/Burnout -> Recovery -> Sangat Bahagia
   const logScenarios = [
+    // --- MINGGU 1: Awal Bulan (Santai & Positif) ---
+    {
+      daysAgo: 29,
+      tagName: "Optimistic",
+      note: "Awal bulan baru, semangat baru! Target bulan ini harus tercapai.",
+    },
+    {
+      daysAgo: 28,
+      tagName: "Calm",
+      note: "Hari yang tenang. Mulai mencicil beberapa materi kuliah.",
+    },
+    {
+      daysAgo: 27,
+      tagName: "Focused",
+      note: "Cukup produktif hari ini. Mengerjakan tugas coding sedikit-sedikit.",
+    },
+    {
+      daysAgo: 26,
+      tagName: "Comfortable",
+      note: "Cuaca enak banget buat rebahan dan nonton series.",
+    },
+    {
+      daysAgo: 25,
+      tagName: "Sleepy",
+      note: "Agak ngantuk seharian, tapi overall oke lah.",
+    },
+    {
+      daysAgo: 24,
+      tagName: "Relaxed",
+      note: "Jalan-jalan sebentar cari udara segar bareng teman.",
+    },
+    {
+      daysAgo: 23,
+      tagName: "Happy",
+      note: "Makan makanan favorit hari ini. Super kenyang dan senang!",
+    },
+
+    // --- MINGGU 2: Mulai Sibuk & Menurun ---
+    {
+      daysAgo: 22,
+      tagName: "Okay",
+      note: "Dosen mulai ngasih tugas besar. Harus mulai atur waktu.",
+    },
+    {
+      daysAgo: 21,
+      tagName: "Bored",
+      note: "Bosen banget dengerin materi kelas hari ini.",
+    },
+    {
+      daysAgo: 20,
+      tagName: "Tired",
+      note: "Tugas mulai menumpuk. Pulang ngampus langsung tepar.",
+    },
+    {
+      daysAgo: 19,
+      tagName: "Unmotivated",
+      note: "Lagi males ngapa-ngapain, padahal deadline makin dekat.",
+    },
+    {
+      daysAgo: 18,
+      tagName: "Anxious",
+      note: "Kepikiran project skripsi yang progresnya lambat.",
+    },
+    {
+      daysAgo: 17,
+      tagName: "Annoyed",
+      note: "Laptop sempet ngehang pas lagi ngetik kode. Bikin kesel!",
+    },
+    {
+      daysAgo: 16,
+      tagName: "Sad",
+      note: "Merasa kurang maksimal ngerjain tugas hari ini.",
+    },
+
+    // --- MINGGU 3: Titik Terendah (Burnout / Stres) ---
+    {
+      daysAgo: 15,
+      tagName: "Panicked",
+      note: "Deadline sisa 3 hari lagi dan backend belum selesai!",
+    },
+    {
+      daysAgo: 14,
+      tagName: "Tired",
+      note: "Begadang sampai jam 3 pagi nge-fix bug Prisma.",
+    },
+    {
+      daysAgo: 13,
+      tagName: "Depressed",
+      note: "Rasanya pengen nyerah aja. Capek banget fisik dan mental.",
+    },
+    {
+      daysAgo: 12,
+      tagName: "Hopeless",
+      note: "Kode error terus, gak tau lagi harus nanya siapa.",
+    },
+    {
+      daysAgo: 11,
+      tagName: "Insecure",
+      note: "Liat temen progresnya cepet banget, jadi ngerasa tertinggal.",
+    },
+    {
+      daysAgo: 10,
+      tagName: "Lonely",
+      note: "Ngerjain semuanya sendirian di kamar. Butuh teman ngobrol.",
+    },
+    {
+      daysAgo: 9,
+      tagName: "Focused",
+      note: "Memaksa diri buat fokus. Minum kopi 2 gelas hari ini.",
+    },
+
+    // --- MINGGU 4: Recovery & Penyelesaian ---
+    {
+      daysAgo: 8,
+      tagName: "Tired",
+      note: "Akhirnya selesai juga MVP-nya, tinggal presentasi besok.",
+    },
+    {
+      daysAgo: 7,
+      tagName: "Anxious",
+      note: "Besok jadwal presentasi. Gugup banget sampai susah tidur.",
+    },
     {
       daysAgo: 6,
-      moodId: 0, // Very Sad
-      tagName: "Depressed",
-      note: "Rasanya berat sekali memulai minggu ini. Banyak tekanan dari tugas akhir.",
+      tagName: "Relieved",
+      note: "PRESENTASI SELESAI! Dosen bilang konsepnya bagus. Plong banget rasanya.",
     },
     {
       daysAgo: 5,
-      moodId: 1, // Sad
-      tagName: "Tired",
-      note: "Kurang tidur karena begadang, tapi setidaknya ada sedikit progres.",
+      tagName: "Sleepy",
+      note: "Tidur seharian membalas dendam jam tidur minggu lalu.",
     },
     {
       daysAgo: 4,
-      moodId: 1, // Sad
-      tagName: "Anxious",
-      note: "Besok ada presentasi, jantung berdebar terus.",
+      tagName: "Grateful",
+      note: "Bersyukur banget punya temen-temen yang support selama masa stres kemarin.",
     },
     {
       daysAgo: 3,
-      moodId: 2, // Normal
-      tagName: "Focused",
-      note: "Mencoba fokus mengerjakan revisi. Not bad.",
+      tagName: "Happy",
+      note: "Main game dari pagi sampai sore tanpa beban pikiran.",
     },
     {
       daysAgo: 2,
-      moodId: 3, // Happy
-      tagName: "Relieved",
-      note: "Presentasi selesai! Rasanya beban 100kg diangkat dari pundak.",
+      tagName: "Excited",
+      note: "Nyiapin rencana liburan kecil-kecilan minggu depan.",
     },
     {
       daysAgo: 1,
-      moodId: 3, // Happy
-      tagName: "Relaxed",
-      note: "Hari ini santai, main game dan dengar lagu seharian.",
-    },
-    {
-      daysAgo: 0, // Hari Ini
-      moodId: 4, // Very Happy
       tagName: "Proud",
-      note: "Dapat feedback positif dari dosen pembimbing. Sangat bangga dengan diri sendiri!",
+      note: "Ngeliat hasil kodingan yang udah di-deploy, bangga banget bisa sejauh ini.",
+    },
+
+    // --- HARI INI ---
+    {
+      daysAgo: 0,
+      tagName: "Satisfied",
+      note: "Hari yang luar biasa! Semua berjalan lancar, siap untuk tantangan berikutnya.",
     },
   ];
 
-  // Loop untuk insert data
+  let successCount = 0;
+
   for (const log of logScenarios) {
-    // 1. Cari ID Feeling Tag berdasarkan nama (Dynamic Lookup)
+    // 1. Cari Tag beserta MoodType-nya
     const tag = await prisma.feelingTag.findFirst({
-      where: {
-        tagName: log.tagName,
-        moodTypeId: log.moodId,
-      },
+      where: { tagName: log.tagName },
+      include: { moodType: true },
     });
 
     if (tag) {
+      // 2. Buat log dan isi tabel perantaranya
       await prisma.moodLog.create({
         data: {
           userId: targetUserId,
-          moodTypeId: log.moodId,
-          feelingTagId: tag.id, // Pakai ID yang ditemukan
+          moodTypeId: tag.moodType.id,
           logDate: getPastDate(log.daysAgo),
           journalNote: log.note,
-          recommendedContentId: null, // Biarkan null dulu untuk seed manual
+          moodLogTags: {
+            create: {
+              feelingTagId: tag.id,
+            },
+          },
         },
       });
+      successCount++;
+    } else {
+      console.log(
+        `❌ Tag "${log.tagName}" tidak ditemukan! Cek ejaan master datamu.`,
+      );
     }
   }
 
-  console.log("✅ 7 Days of Mood Logs created for user.");
+  console.log(
+    `✅ Berhasil membuat ${successCount} Mood Logs (30 Hari) untuk user.`,
+  );
 }
 
 // main()
@@ -264,15 +230,15 @@ async function moodSeed() {
 //     process.exit(1);
 //   });
 
-moodSeed()
-  .then(async () => {
-    await prisma.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await prisma.$disconnect();
-    process.exit(1);
-  });
+// moodSeed()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
 
 // async function getAllMoods() {
 //   return await prisma.moodLog.findMany({
@@ -289,3 +255,103 @@ moodSeed()
 //     await prisma.$disconnect();
 //     process.exit(1);
 //   });
+
+// let oldData = "";
+
+// prisma.moodLog
+//   .findMany({
+//     where: { userId: "3e9ecb03-56cd-4e8c-b8fa-14dd70612ce2" },
+//     orderBy: {
+//       logDate: "desc",
+//     },
+//   })
+//   .then((data) => {
+//     oldData = data[1];
+//     console.log(oldData.logDate);
+//     console.log(typeof oldData.logDate);
+//   });
+
+async function seedUserStreak() {
+  console.log("Start seeding UserStreak...");
+
+  // 1. TARGET USER
+  // Ganti dengan UUID user yang benar-benar ada di database kamu
+  const targetUserId = "59da58ed-876b-4cb6-ac1c-6947ee94e7b0";
+
+  // 2. CLEANUP (Hapus streak lama biar tidak duplikat saat seed ulang)
+  await prisma.userStreak.deleteMany({
+    where: { userId: targetUserId },
+  });
+
+  const today = new Date();
+
+  // ==========================================
+  // SKENARIO A: Streak Masa Lalu (History)
+  // Cerita: Bulan lalu dia rajin 7 hari berturut-turut, lalu putus.
+  // ==========================================
+
+  const pastEndDate = new Date();
+  pastEndDate.setDate(today.getDate() - 30); // Berakhir 30 hari yang lalu
+
+  const pastStartDate = new Date(pastEndDate);
+  pastStartDate.setDate(pastEndDate.getDate() - 6); // Mundur 6 hari (Total length 7 hari)
+
+  await prisma.userStreak.create({
+    data: {
+      userId: targetUserId,
+      length: 7, // 7 Hari berturut-turut
+      startDate: pastStartDate,
+      endDate: pastEndDate, // Terakhir log 30 hari lalu
+      isActive: false, // SUDAH TIDAK AKTIF (Putus)
+      updatedAt: pastEndDate, // Wajib diisi karena di schema tidak ada @updatedAt auto
+    },
+  });
+
+  // ==========================================
+  // SKENARIO B: Streak Saat Ini (Active)
+  // Cerita: Dia baru mulai rajin lagi 5 hari terakhir ini.
+  // ==========================================
+
+  const currentStartDate = new Date();
+  currentStartDate.setDate(today.getDate() - 4); // Mulai 4 hari lalu (Total length 5 hari termasuk hari ini)
+
+  await prisma.userStreak.create({
+    data: {
+      userId: targetUserId,
+      length: 5, // 5 Hari berturut-turut
+      startDate: currentStartDate,
+      endDate: today, // Terakhir log HARI INI
+      isActive: true, // MASIH AKTIF
+      updatedAt: today,
+    },
+  });
+
+  console.log(`✅ UserStreak seeded for user ${targetUserId}`);
+}
+
+// seedUserStreak()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
+
+let array = [];
+
+prisma.userStreak
+  .findMany({
+    where: { userId: "59da58ed-876b-4cb6-ac1c-6947ee94e7b0" },
+    orderBy: {
+      isActive: "desc",
+    },
+  })
+  .then((data) => {
+    array = data.map((obj) =>{
+      if(obj){
+        
+      }
+    })
+  });

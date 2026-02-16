@@ -25,7 +25,7 @@ const createMood = async (req, res, next) => {
     const { journalNote, moodTypeId, feelingTagIds, logDate } = req.body;
     const userId = req.user;
 
-    const newMood = await moodService.createMood(
+    const { newLog, streak } = await moodService.createMood(
       userId,
       journalNote,
       logDate,
@@ -33,7 +33,17 @@ const createMood = async (req, res, next) => {
       feelingTagIds,
     );
 
-    res.status(201).json({ message: "Catatan berhasil dibuat", data: newMood });
+    res.status(201).json({
+      message: "Catatan berhasil dibuat",
+      data: {
+        newLog,
+        streak: {
+          startDate: streak.startDate,
+          endDate: streak.endDate,
+          length: streak.length,
+        },
+      },
+    });
   } catch (error) {
     next(error);
   }
