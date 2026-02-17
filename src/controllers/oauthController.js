@@ -16,7 +16,10 @@ const authCallbackController = async (req, res, next) => {
     });
 
     // Redirect ke frontend dengan token dan user data sebagai query parameters
-    const frontendUrl = process.env.FRONTEND_URL;
+    const frontendUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:5173";
     const redirectUrl = `${frontendUrl}/auth/google/callback?token=${
       authData.accessToken
     }&user=${encodeURIComponent(JSON.stringify(authData.user))}`;
@@ -24,7 +27,10 @@ const authCallbackController = async (req, res, next) => {
     res.redirect(redirectUrl);
   } catch (error) {
     console.error("OAuth callback error:", error);
-    const frontendUrl = process.env.FRONTEND_URL;
+    const frontendUrl =
+      process.env.NODE_ENV === "production"
+        ? process.env.FRONTEND_URL
+        : "http://localhost:5173";
     res.redirect(`${frontendUrl}/login?error=Gagal login dengan Google`);
     next(error);
   }
