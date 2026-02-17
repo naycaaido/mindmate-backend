@@ -17,7 +17,7 @@ const getTopTriggers = async (req, res) => {
     const userId = req.user;
     const days = parseInt(req.query.days) || 30;
 
-    const result = await analyticsService.getMoodStability(userId, days);
+    const result = await analyticsService.getTopTriggers(userId, days);
 
     return res.status(200).json({
       message: "Berhasil mengambil data pemicu emosi",
