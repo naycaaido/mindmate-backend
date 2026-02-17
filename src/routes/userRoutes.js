@@ -7,5 +7,6 @@ const userRoutes = Router();
 userRoutes.use(validateToken);
 
 userRoutes.get("/", userController.getMyProfile);
+userRoutes.put("/edit", userController.updateProfile);
 
 export default userRoutes;
