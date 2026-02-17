@@ -1,4 +1,5 @@
 import prisma from "../database/prisma.js";
+import NotFoundError from "../exceptions/NotFoundError.js";
 
 const getMyProfile = async (userId) => {
   const user = await prisma.user.findUnique({
@@ -28,4 +29,23 @@ const getMyProfile = async (userId) => {
   return { user, displayStreak };
 };
 
-export default { getMyProfile };
+const updateProfile = async (userId, username) => {
+  try {
+    const userUpdate = await prisma.user.update({
+      where: { id: userId },
+      data: { username },
+    });
+
+    return userUpdate;
+  } catch (error) {
+    if (
+      error instanceof prisma.PrismaClientKnownRequestError &&
+      error.code === "P2025"
+    ) {
+      throw new NotFoundError("User Not Found");
+    }
+    throw error;
+  }
+};
+
+export default { getMyProfile, updateProfile };

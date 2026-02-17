@@ -2,17 +2,14 @@ import userService from "../services/userService.js";
 
 const getMyProfile = async (req, res) => {
   try {
-    // Pastikan req.user berisi ID yang benar. 
-    // Biasanya middleware auth menyimpan payload di req.user.id
-    const userId = req.user; 
+    const userId = req.user;
 
-    // PERBAIKAN 1: Tambahkan 'await' di sini
     const serviceResult = await userService.getMyProfile(userId);
 
     const { user, displayStreak } = serviceResult;
 
     return res.status(200).json({
-      status: "success",
+      message: "succesfully getting user porfile",
       data: {
         username: user.username,
         email: user.email,
@@ -21,10 +18,9 @@ const getMyProfile = async (req, res) => {
           startDate: user.streaks?.startDate || null,
           endDate: user.streaks?.endDate || null,
         },
-        photoUrl: user.photo_profile || user.photoUrl || null, 
+        photoUrl: user.photo_profile || user.photoUrl || null,
       },
     });
-
   } catch (error) {
     console.error("Error di getMyProfile:", error);
     return res.status(500).json({
@@ -34,4 +30,20 @@ const getMyProfile = async (req, res) => {
   }
 };
 
-export default { getMyProfile };
+const updateProfile = async (req, res, next) => {
+  try {
+    const userId = req.user;
+    const { username } = req.body;
+
+    const result = await userService.updateProfile(userId, username);
+
+    return res.status(200).json({
+      message: "successfuly updating user profile",
+      data: result,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export default { getMyProfile, updateProfile };
