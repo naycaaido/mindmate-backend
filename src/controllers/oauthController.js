@@ -30,7 +30,7 @@ const authCallbackController = async (req, res, next) => {
   }
 };
 
-const authLoginController = (res) => {
+const authLoginController = (req, res) => {
   res.redirect(authorizationUrl);
 };
 
