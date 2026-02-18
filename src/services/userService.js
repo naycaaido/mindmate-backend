@@ -1,5 +1,7 @@
 import prisma from "../database/prisma.js";
 import NotFoundError from "../exceptions/NotFoundError.js";
+import profilePath from "../utils/filePath.js";
+import uploadUserAsset from "../services/uploadFileService.js";
 
 const getMyProfile = async (userId) => {
   const user = await prisma.user.findUnique({
@@ -29,23 +31,44 @@ const getMyProfile = async (userId) => {
   return { user, displayStreak };
 };
 
-const updateProfile = async (userId, username) => {
+const updatePhotoProfile = async (email, file) => {
+  const fileName = `profile_${Date.now()}.jpg`;
+  const filePath = profilePath(email, fileName);
+
+  const uploadResult = await uploadUserAsset(file, filePath);
+  return uploadResult;
+};
+
+const updateProfile = async (userId, username, file) => {
   try {
+    let photoUrl;
+    if (file) {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+        select: { email: true },
+      });
+
+      if (!user) throw new NotFoundError("User Not Found");
+
+      const photoResult = await updatePhotoProfile(user.email, file);
+      photoUrl = photoResult.url;
+    }
+
     const userUpdate = await prisma.user.update({
       where: { id: userId },
-      data: { username },
+      data: {
+        username: username,
+        photo_profile: photoUrl,
+      },
     });
 
     return userUpdate;
   } catch (error) {
-    if (
-      error instanceof prisma.PrismaClientKnownRequestError &&
-      error.code === "P2025"
-    ) {
+    if (error.code === "P2025") {
       throw new NotFoundError("User Not Found");
     }
     throw error;
   }
 };
 
-export default { getMyProfile, updateProfile };
+export default { getMyProfile, updateProfile, updatePhotoProfile };
