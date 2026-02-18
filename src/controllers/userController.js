@@ -35,7 +35,8 @@ const updateProfile = async (req, res, next) => {
   try {
     const userId = req.user.id || req.user;
 
-    const { username } = req.body;
+    const jsonParse = JSON.parse(req.body.data);
+    const { username } = jsonParse;
 
     const file = req.file;
 
@@ -47,9 +48,15 @@ const updateProfile = async (req, res, next) => {
 
     const result = await userService.updateProfile(userId, username, file);
 
+    console.log(result);
+
     return res.status(200).json({
       message: "Successfully updating user profile",
-      data: result,
+      data: {
+        id: result.id,
+        username: result.username,
+        photoUrl: result.photo_profile,
+      },
     });
   } catch (error) {
     next(error);
