@@ -1,3 +1,4 @@
+import { type } from "os";
 import userService from "../services/userService.js";
 
 const getMyProfile = async (req, res) => {
@@ -32,13 +33,22 @@ const getMyProfile = async (req, res) => {
 
 const updateProfile = async (req, res, next) => {
   try {
-    const userId = req.user;
+    const userId = req.user.id || req.user;
+
     const { username } = req.body;
 
-    const result = await userService.updateProfile(userId, username);
+    const file = req.file;
+
+    if (!username && !file) {
+      return res.status(400).json({
+        message: "Tidak ada data yang dikirim untuk diperbarui",
+      });
+    }
+
+    const result = await userService.updateProfile(userId, username, file);
 
     return res.status(200).json({
-      message: "successfuly updating user profile",
+      message: "Successfully updating user profile",
       data: result,
     });
   } catch (error) {
