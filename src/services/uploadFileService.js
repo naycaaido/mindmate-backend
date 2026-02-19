@@ -15,7 +15,6 @@ export const uploadUserAsset = async (file, filePath) => {
     .from(process.env.SUPABASE_BUCKET)
     .getPublicUrl(filePath);
 
-  console.log("Mau kelar upload");
   return { path: filePath, url: publicUrl.publicUrl };
 };
 

@@ -15,8 +15,8 @@ const getMyProfile = async (req, res) => {
         email: user.email,
         currentStreak: {
           length: displayStreak,
-          startDate: streaks[0].startDate,
-          endDate: streaks[0].endDate,
+          startDate: streaks[0]?.startDate || null,
+          endDate: streaks[0]?.endDate || null,
         },
         photoUrl: user.photo_profile || user.photoUrl || null,
       },
@@ -46,8 +46,6 @@ const updateProfile = async (req, res, next) => {
     }
 
     const result = await userService.updateProfile(userId, username, file);
-
-    console.log(result);
 
     return res.status(200).json({
       message: "Successfully updating user profile",
