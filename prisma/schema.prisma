@@ -67,20 +67,20 @@ model ContentTag {
 }
 
 model RelaxationContent {
-  id              String  @id @default(uuid())
-  moodTypeId      Int
-  tagId           Int
-  title           String
-  description     String
-  contentType     String // 'YOUTUBE', 'ARTICLE', etc.
-  contentUrl      String
-  thumbnailUrl    String?
-  durationMinutes Int
+  id String @id @default(uuid())
 
-  // Relations
-  moodType        MoodType   @relation(fields: [moodTypeId], references: [id])
-  contentTag      ContentTag @relation(fields: [tagId], references: [id])
-  recommendedLogs MoodLog[] // Log dimana konten ini direkomendasikan
+  moodTypeId Int
+  tagId      Int?
+
+  title       String
+  description String
+
+  modalIntro String @db.Text
+  modalSteps Json
+
+  moodType        MoodType    @relation(fields: [moodTypeId], references: [id])
+  contentTag      ContentTag? @relation(fields: [tagId], references: [id]) // Opsional
+  recommendedLogs MoodLog[]
 }
 
 model MoodType {
@@ -93,7 +93,6 @@ model MoodType {
   moodLogs           MoodLog[]
 }
 
-// 1. Master Data Feeling (Tetap Bersih)
 model FeelingTag {
   id         Int      @id @default(autoincrement())
   moodTypeId Int
@@ -120,7 +119,6 @@ model MoodLog {
   moodType           MoodType           @relation(fields: [moodTypeId], references: [id])
   recommendedContent RelaxationContent? @relation(fields: [recommendedContentId], references: [id])
 
-  // Ubah relasi ke tabel perantara
   moodLogTags MoodLogTag[]
 
   @@index([userId, logDate])
@@ -132,13 +130,10 @@ model MoodLogTag {
   moodLogId    String
   feelingTagId Int
 
-  // Relasi ke Parent (Log)
   moodLog MoodLog @relation(fields: [moodLogId], references: [id], onDelete: Cascade)
 
-  // Relasi ke Master Data (Tag)
   feelingTag FeelingTag @relation(fields: [feelingTagId], references: [id], onDelete: Cascade)
 
-  // Mencegah duplikat: 1 Log tidak boleh punya Tag yang sama 2 kali
   @@unique([moodLogId, feelingTagId])
   @@map("mood_log_tags")
 }

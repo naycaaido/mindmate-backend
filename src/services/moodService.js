@@ -21,20 +21,27 @@ const createMood = async (
   userId,
   journalNote,
   logDate,
-  moodTypeId,
+  moodTypeIdInput,
   feelingTagIds,
 ) => {
   const tagConnections = feelingTagIds.map((tagId) => ({
     feelingTagId: tagId,
   }));
 
+  console.log(moodTypeIdInput);
+  const recommendedContent = await prisma.relaxationContent.findFirst({
+    where: {
+      moodTypeId: moodTypeIdInput,
+    },
+  });
+
   const newLog = await prisma.moodLog.create({
     data: {
       userId,
-      moodTypeId: moodTypeId,
+      moodTypeId: moodTypeIdInput,
       logDate: new Date(logDate),
       journalNote,
-
+      recommendedContentId: recommendedContent?.id || null,
       moodLogTags: {
         create: tagConnections,
       },
@@ -72,8 +79,9 @@ const updateMood = async (
 
   if (journalNote !== undefined) updateData.journalNote = journalNote;
 
-  // if (moodTypeId) updateData.moodTypeId = parseInt(moodTypeId); 
-  if (moodTypeId != null && moodTypeId != undefined) updateData.moodTypeId = parseInt(moodTypeId);
+  // if (moodTypeId) updateData.moodTypeId = parseInt(moodTypeId);
+  if (moodTypeId != null && moodTypeId != undefined)
+    updateData.moodTypeId = parseInt(moodTypeId);
 
   if (logDate) updateData.logDate = new Date(logDate);
 
