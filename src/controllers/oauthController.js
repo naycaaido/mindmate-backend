@@ -5,7 +5,6 @@ const authCallbackController = async (req, res, next) => {
   try {
     // kirimkan kode yang diterima Google (req.query.code), bukan seluruh req.query
     const authData = await authCallback(req.query.code);
-    console.log("📥 Received Google callback with code:", req.query.code);
 
     res.cookie("refreshToken", authData.refreshToken, {
       httpOnly: true,

@@ -47,8 +47,6 @@ const updateProfile = async (req, res, next) => {
 
     const result = await userService.updateProfile(userId, username, file);
 
-    console.log(result);
-
     return res.status(200).json({
       message: "Successfully updating user profile",
       data: {

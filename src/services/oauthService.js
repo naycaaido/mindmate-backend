@@ -9,8 +9,6 @@ async function findOrCreateUserGoogle(data) {
       where: { email: data.email },
     });
 
-    console.log(data);
-
     if (!existingUser) {
       const newUser = await tx.user.create({
         data: {
