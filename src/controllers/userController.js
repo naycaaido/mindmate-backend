@@ -15,8 +15,8 @@ const getMyProfile = async (req, res) => {
         email: user.email,
         currentStreak: {
           length: displayStreak,
-          startDate: streaks[0].startDate,
-          endDate: streaks[0].endDate,
+          startDate: streaks[0]?.startDate || null,
+          endDate: streaks[0]?.endDate || null,
         },
         photoUrl: user.photo_profile || user.photoUrl || null,
       },
