@@ -1,4 +1,3 @@
-import { type } from "os";
 import userService from "../services/userService.js";
 
 const getMyProfile = async (req, res) => {
@@ -7,7 +6,7 @@ const getMyProfile = async (req, res) => {
 
     const serviceResult = await userService.getMyProfile(userId);
 
-    const { user, displayStreak } = serviceResult;
+    const { user, displayStreak, streaks } = serviceResult;
 
     return res.status(200).json({
       message: "succesfully getting user porfile",
@@ -16,8 +15,8 @@ const getMyProfile = async (req, res) => {
         email: user.email,
         currentStreak: {
           length: displayStreak,
-          startDate: user.streaks?.startDate || null,
-          endDate: user.streaks?.endDate || null,
+          startDate: streaks[0].startDate,
+          endDate: streaks[0].endDate,
         },
         photoUrl: user.photo_profile || user.photoUrl || null,
       },

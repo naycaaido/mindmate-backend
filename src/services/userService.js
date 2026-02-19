@@ -14,6 +14,7 @@ const getMyProfile = async (userId) => {
     },
   });
 
+  let streaks = user.streaks;
   let displayStreak = 0;
   if (user.streaks.length > 0) {
     const streak = user.streaks[0];
@@ -28,7 +29,7 @@ const getMyProfile = async (userId) => {
     }
   }
 
-  return { user, displayStreak };
+  return { user, displayStreak, streaks };
 };
 
 const updatePhotoProfile = async (email, file) => {
