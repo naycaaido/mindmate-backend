@@ -9,10 +9,13 @@ async function findOrCreateUserGoogle(data) {
       where: { email: data.email },
     });
 
+    console.log(data);
+
     if (!existingUser) {
       const newUser = await tx.user.create({
         data: {
           username: data.name || data.email.split("@")[0],
+          photo_profile: data.picture,
           email: data.email,
           password: null,
           login_provider: "google",

@@ -103,9 +103,8 @@ const refreshAccessToken = async (refreshToken) => {
     throw new NotFoundError("Token not found or revoked", "TOKEN_REVOKED");
   }
 
-  let decoded;
   try {
-    decoded = jwt.verify(refreshToken, process.env.REFRESH_KEY);
+    jwt.verify(refreshToken, process.env.REFRESH_KEY);
   } catch (err) {
     if (err.message === "jwt expired") {
       throw new UnauthorizedError("Refresh token expired", "TOKEN_EXPIRED");

@@ -21,6 +21,7 @@
   "homepage": "https://github.com/naycaaido/mindmate-backend#readme",
   "dependencies": {
     "@prisma/client": "^6.19.2",
+    "@supabase/supabase-js": "^2.96.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -30,6 +31,7 @@
     "googleapis": "^171.4.0",
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
+    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-google-oauth2": "^0.2.0"
   },
